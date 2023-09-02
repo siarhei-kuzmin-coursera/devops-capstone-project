@@ -162,3 +162,22 @@ class TestAccountService(TestCase):
         read_account = response.get_json()
         self.assertEqual(read_account["name"], account.name)
 
+    def test_update_account(self):
+        """It should update an account"""
+
+        # Check an account that does not exist
+        response = self.client.put(f"{BASE_URL}/0", json={})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Create an account for test
+        account = self._create_accounts(1)[0]
+
+        # Check if endpoint is available
+        account.name = "Updated name"
+        response = self.client.put(f"{BASE_URL}/{account.id}", json=account.serialize())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Compare values
+        updated_account = response.get_json()
+        self.assertEqual(updated_account["name"], account.name)
+
