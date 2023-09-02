@@ -144,3 +144,21 @@ class TestAccountService(TestCase):
         account_list = response.get_json()
         self.assertEqual(len(account_list), len(accounts))
 
+    def test_get_account(self):
+        """It should get an account"""
+
+        # Check an account that does not exist
+        response = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Create an account for test
+        account = self._create_accounts(1)[0]
+
+        # Check if endpoint is available
+        response = self.client.get(f"{BASE_URL}/{account.id}", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Compare values
+        read_account = response.get_json()
+        self.assertEqual(read_account["name"], account.name)
+
