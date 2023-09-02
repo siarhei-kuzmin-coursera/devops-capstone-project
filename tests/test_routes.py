@@ -181,3 +181,26 @@ class TestAccountService(TestCase):
         updated_account = response.get_json()
         self.assertEqual(updated_account["name"], account.name)
 
+    def test_delete_account(self):
+        """It should delete an account"""
+
+        # Check an account that does not exist
+        response = self.client.delete(f"{BASE_URL}/0", json={})
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Create an account for test
+        account = self._create_accounts(1)[0]
+
+        # Check if endpoint is available
+        response = self.client.delete(f"{BASE_URL}/{account.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Check if the account is not in DB
+        response = self.client.get(f"{BASE_URL}/{account.id}", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.delete(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
